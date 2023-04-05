@@ -3,9 +3,7 @@ name = "rhaki_cw_mock_http_querier"
 version = "0.1.0"
 edition = "2021"
 authors = ["Rhaki"]
-description = "Un grandissimo diocane"
-
-
+description = "Cosmwasm mock querier for testing, that can perform http request to public lcd."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
