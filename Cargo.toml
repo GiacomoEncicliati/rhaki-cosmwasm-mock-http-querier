@@ -1,0 +1,18 @@
+[package]
+name = "rhaki_cw_mock_http_querier"
+version = "0.1.0"
+edition = "2021"
+authors = ["Rhaki"]
+description = "Un grandissimo diocane"
+
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0.137", default-features = false, features = ["derive"] }
+cosmwasm-std = { version = "1.1.4", features = ["iterator"] }
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+base64 = "0.21.0"
+serde_json = "1.0.94"
+
