@@ -38,6 +38,28 @@ impl<C: CustomQuery + DeserializeOwned> HttpWasmMockQuerier<C> {
             url_lcd,
         }
     }
+
+    pub fn handle_query(&self, request: &QueryRequest<C>) -> QuerierResult {
+        match request {
+            QueryRequest::Wasm(WasmQuery::Smart { contract_addr, msg }) => {
+                
+                let mut url = self.url_lcd.clone();
+                url.push_str("/cosmwasm/wasm/v1/contract/");
+                url.push_str(contract_addr);
+                url.push_str("/smart/");
+                url.push_str(msg.to_string().as_str());
+
+                let res: LcdSmartQueryHttpResponse =
+                    reqwest::blocking::get(url).unwrap().json().unwrap();
+                let encoded_resp: String =
+                    general_purpose::STANDARD_NO_PAD.encode(res.data.to_string());
+                let binary_resp = Binary::from_base64(encoded_resp.as_str()).unwrap();
+
+                QuerierResult::Ok(ContractResult::Ok(binary_resp))
+            }
+            _ => self.base.handle_query(request),
+        }
+    }
 }
 
 impl<C: CustomQuery + DeserializeOwned> Querier for HttpWasmMockQuerier<C> {
@@ -52,31 +74,6 @@ impl<C: CustomQuery + DeserializeOwned> Querier for HttpWasmMockQuerier<C> {
             }
         };
         self.handle_query(&request)
-    }
-}
-
-impl<C: CustomQuery + DeserializeOwned> HttpWasmMockQuerier<C> {
-    pub fn handle_query(&self, request: &QueryRequest<C>) -> QuerierResult {
-        match request {
-            QueryRequest::Wasm(WasmQuery::Smart { contract_addr, msg }) => {
-                let str_msg = msg.to_string();
-
-                let mut url = self.url_lcd.clone();
-                url.push_str("/cosmwasm/wasm/v1/contract/");
-                url.push_str(contract_addr);
-                url.push_str("/smart/");
-                url.push_str(str_msg.as_str());
-
-                let res: LcdSmartQueryHttpResponse =
-                    reqwest::blocking::get(url).unwrap().json().unwrap();
-                let encoded_resp: String =
-                    general_purpose::STANDARD_NO_PAD.encode(res.data.to_string());
-                let binary_resp = Binary::from_base64(encoded_resp.as_str()).unwrap();
-
-                QuerierResult::Ok(ContractResult::Ok(binary_resp))
-            }
-            _ => self.base.handle_query(request),
-        }
     }
 }
 
